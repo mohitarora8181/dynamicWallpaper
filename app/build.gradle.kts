@@ -83,4 +83,7 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
 
     implementation("androidx.work:work-runtime-ktx:2.5.0")
+
+    implementation ("androidx.glance:glance:1.0.0-alpha05")
+    implementation ("androidx.glance:glance-appwidget:1.0.0-alpha05")
 }

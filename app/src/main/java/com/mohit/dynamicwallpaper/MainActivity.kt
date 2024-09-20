@@ -1,6 +1,7 @@
 package com.mohit.dynamicwallpaper
 
 import android.app.WallpaperManager
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
@@ -33,7 +34,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import coil.compose.AsyncImage
 import com.mohit.dynamicwallpaper.ui.theme.DynamicWallpaperTheme
@@ -60,12 +63,25 @@ class MainActivity : ComponentActivity() {
             DynamicWallpaperTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Home(modifier = Modifier.padding(innerPadding))
-                    val periodicWork = PeriodicWorkRequestBuilder<Worker>(10,TimeUnit.SECONDS).build()
-                    WorkManager.getInstance().enqueueUniquePeriodicWork(
-                        "123456789098765432",
-                        ExistingPeriodicWorkPolicy.KEEP,
-                        periodicWork
-                    )
+                    //                    val periodicWork = PeriodicWorkRequestBuilder<Worker>(10,TimeUnit.SECONDS).build()
+//                    WorkManager.getInstance().enqueueUniquePeriodicWork(
+//                        "123456789098765432",
+//                        ExistingPeriodicWorkPolicy.KEEP,
+//                        periodicWork
+//                    )
+                    fun enqueueWork() {
+                        val onetimework = OneTimeWorkRequestBuilder<Worker>()
+                            .setInitialDelay(60, TimeUnit.SECONDS)
+                            .build()
+                        WorkManager.getInstance(this.applicationContext).enqueue(onetimework)
+                        WorkManager.getInstance(this.applicationContext).getWorkInfoByIdLiveData(onetimework.id)
+                            .observeForever { workinfo ->
+                                if (workinfo?.state == WorkInfo.State.SUCCEEDED) {
+                                    enqueueWork()
+                                }
+                            }
+                    }
+                    enqueueWork()
                 }
             }
         }
